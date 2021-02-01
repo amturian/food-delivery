@@ -3,25 +3,25 @@ const app = express();
 const bodyParser = require('body-parser');
 require('dotenv').config();
 
-const foodDbService = require('./foodDb');
+const foodDbService = require('./services/foodDbService');
 
 app.use(bodyParser.json());
 
 /**
- * Connects to databases and then starts http server
- * In case of any error, exits
+ * Connect to databases and then start http server
+ * In case of any error, exit
  * @returns {Promise<void>}
  */
 async function start() {
     try {
         await foodDbService.getDb();
-        // remove comments to see singleton pattern in action
+        // remove comments to see singleton pattern in action, no new clients should be created
         // await dbService.getDb();
         // await dbService.getDb();
 
         console.log('Starting http server...');
         app.listen(8999, function() {
-            console.log('Http server started. Listening on %j', 8999);
+            console.log('Server started. Listening on %j', 8999);
         });
     } catch(error) {
         console.error(error);
@@ -29,7 +29,7 @@ async function start() {
     }
 }
 
-start().then(() => console.log('Server initialized.'));
+start().then(() => console.log('Finished startup process.'));
 
 app.get('/', async (req, res) => {
     res.status(200).send('Hello from express server');
