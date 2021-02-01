@@ -1,7 +1,9 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const dbService = require('./mongoDbService');
+require('dotenv').config();
+
+const foodDbService = require('./foodDb');
 
 app.use(bodyParser.json());
 
@@ -12,7 +14,7 @@ app.use(bodyParser.json());
  */
 async function start() {
     try {
-        await dbService.getDb();
+        await foodDbService.getDb();
         // remove comments to see singleton pattern in action
         // await dbService.getDb();
         // await dbService.getDb();
