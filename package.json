@@ -1,0 +1,27 @@
+{
+  "name": "food-delivery",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexandraturian/food-delivery.git"
+  },
+  "author": "Alexandra Turian",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alexandraturian/food-delivery/issues"
+  },
+  "homepage": "https://github.com/alexandraturian/food-delivery#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "mongodb": "^3.6.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}
