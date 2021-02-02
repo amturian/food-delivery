@@ -13,7 +13,7 @@ function mongodbService(params) {
      * Counter for how many times the singleton db connection is called
      * @type {number}
      */
-    let instance = 0;
+    let noOfCalls = 0;
 
     return {
         getDb,
@@ -53,8 +53,8 @@ function mongodbService(params) {
      * @returns {Promise<mongodb.Db>} - promise that resolves to mongo database object
      */
     async function getDb(name) {
-        instance++; // used to count how many times our singleton is called.
-        console.log(`Singleton db connection called ${instance} times`);
+        noOfCalls++; // used to count how many times our singleton is called.
+        console.log(`Singleton db connection called ${noOfCalls} times`);
 
         // no connection exists or existing connection is stale
         if (!clientPromise || !(await clientPromise).isConnected()) {
