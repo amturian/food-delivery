@@ -31,6 +31,15 @@ async function start() {
 
 start().then(() => console.log('Finished startup process.'));
 
+app.use('/orders', require('./routes/orders'));
+
 app.get('/', async (req, res) => {
     res.status(200).send('Hello from express server');
 });
+
+app.use(globalErrorHandler);
+
+function globalErrorHandler(err, req, res, next) {
+    console.error(err);
+    res.status(500).send({error: err.message});
+}

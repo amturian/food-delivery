@@ -17,6 +17,7 @@ function mongodbService(params) {
 
     return {
         getDb,
+        insertOne,
     };
 
     /**
@@ -54,7 +55,7 @@ function mongodbService(params) {
      */
     async function getDb(name) {
         noOfCalls++; // used to count how many times our singleton is called.
-        console.log(`Singleton db connection called ${noOfCalls} times`);
+        console.log(`Singleton getDd method called ${noOfCalls} times`);
 
         // no connection exists or existing connection is stale
         if (!clientPromise || !(await clientPromise).isConnected()) {
@@ -65,6 +66,56 @@ function mongodbService(params) {
         }
 
         return (await clientPromise).db(name || dbName);
+    }
+
+    /**
+     * Wrapper for mongodb insertOne() function
+     * https://mongodb.github.io/node-mongodb-native/3.5/api/Collection.html#insertOne
+     * https://docs.mongodb.com/v3.4/reference/method/db.collection.insertOne
+     * @param {string} collection
+     * @param {object} doc
+     * @param {object} [options={}] - https://mongodb.github.io/node-mongodb-native/3.5/api/Collection.html#insertOne
+     * @returns {Promise<object>} - promise that resolves to the inserted document
+     */
+    async function insertOne(collection, doc, options) {
+        const db = await getDb();
+
+        try {
+            var result = await db.collection(collection).insertOne(
+                {
+                    _type: collection,
+                    ...doc,
+                },
+                options
+            );
+        } catch (err) {
+            console.error(err);
+        }
+
+        return makeBo(result.ops[0]);
+    }
+
+    /**
+     * Convert first level database specific document attributes
+     * @param result {object|cursor|array} - MongoDb document result/set
+     * @param [options] {object}
+     * @param [options.defaultTo] {*} - In case of empty result, dto should yield to given value
+     * @returns {object|object[]|*}
+     */
+    function makeBo(result, options) {
+        if (!result) {
+            return options.hasOwnProperty('defaultTo') ? options.defaultTo : {};
+        }
+
+        let swapMongoIdProp = obj => {
+            let objCopy = {...obj, id: obj['_id']};
+            delete objCopy['_id'];
+            return objCopy;
+        };
+
+        return Array.isArray(result)
+            ? result.map(swapMongoIdProp)
+            : swapMongoIdProp(result);
     }
 }
 
