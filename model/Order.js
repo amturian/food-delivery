@@ -13,6 +13,8 @@ class Order {
      * @property {string} FoodItems[0].item - dish name
      * @property {number} FoodItems[0].price - price for one portion
      * @property {number} FoodItems[0].quantity
+     *
+     * @property {string} [voucher]
      */
 
     constructor() {
@@ -39,12 +41,29 @@ class Order {
         return this;
     }
 
+    /**
+     * @param {string} voucher
+     * @return {Order}
+     */
+    setVoucher(voucher) {
+        this.voucher = voucher;
+        return this;
+    }
+
     getOrder() {
         if (!this.foodItems.length) {
             throw new Error('Could not build order. No food items ordered.');
         }
 
         return this;
+    }
+
+    getCost() {
+        return this.foodItems.reduce((totalPrice, currentItem) => {
+            const {price, quantity} = currentItem;
+            totalPrice += quantity * price;
+            return totalPrice;
+        }, 0);
     }
 }
 

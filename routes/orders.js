@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 
 const Order = require('../model/Order');
+const VoucherDecorator = require('../model/VoucherDecorator');
+const SpecialDailyDiscountsDecorator = require('../model/SpecialDailyDiscountsDecorator');
 const foodDbService = require('../services/foodDbService.js');
 
 router.get('/', (req, res) =>
@@ -9,18 +11,35 @@ router.get('/', (req, res) =>
 );
 
 router.post('/', async (req, res) => {
-   const order = createOrder(req.body);
-   const {id: orderId} = await foodDbService.insertOne('orders', order);
+   let order = createOrder(req.body);
+   // example 1 decorator
+   SpecialDailyDiscountsDecorator(order);
+   const {voucher} = req.body;
+   if (voucher) {
+      // example 2 decorator
+      order = new VoucherDecorator(order);
+   }
+   const cost = order.getCost();
+   console.log('Computed cost', cost);
+   const {id: orderId} = await foodDbService.insertOne('orders', {...order, cost});
 
    res.send({orderId});
 });
 
 // can be seen as a Director
 // docs: https://refactoring.guru/design-patterns/builder
-function createOrder({address, dishes}) {
+/**
+ *
+ * @param address
+ * @param {FoodItems} dishes
+ * @param {string} voucher
+ * @return {Order}
+ */
+function createOrder({address, dishes, voucher}) {
    const order = new Order()
        .setAddress(address)
-       .setFoodItems(dishes);
+       .setFoodItems(dishes)
+       .setVoucher(voucher);
 
    return order.getOrder();
 }
