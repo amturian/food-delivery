@@ -8,10 +8,13 @@ Check model/Order to see an implementation of a ConcreteBuilder\
 ! No Builder interface, since there are no interfaces in JS \
 ! No Director implemented, since it's optional. Check usage in routes/orders, can be seen as Director
 
-# Decorator pattern 
+# Decorator 
 Check decorators in model directory\
 They are built in different ways, so that you can compare different approaches\
 https://addyosmani.com/blog/decorator-pattern/
+
+# Facade 
+mongoDbService over database operations
 
 ## Requirements to run the app 
 - DB setup: https://www.knowi.com/blog/getting-started-with-mongodb-atlas-overview-and-tutorial/#tc3.1
