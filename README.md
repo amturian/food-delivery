@@ -16,6 +16,11 @@ https://addyosmani.com/blog/decorator-pattern/
 # Facade 
 mongoDbService over database operations
 
+# Chain of responsibility 
+Middlewares for ExpressJS
+https://expressjs.com/en/guide/using-middleware.html
+Check server.js file
+
 # Command 
 Check orderManager and foodDbService for implementation
 Check routes/orders for usage
