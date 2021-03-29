@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const mongodb = require('mongodb');
 
 function mongodbService(params) {
@@ -18,6 +19,8 @@ function mongodbService(params) {
     return {
         getDb,
         insertOne,
+        updateOne,
+        getObjectId,
     };
 
     /**
@@ -94,6 +97,56 @@ function mongodbService(params) {
 
         return makeBo(result.ops[0]);
     }
+
+    async function updateOne(collection, query, content) {
+        const db = await getDb();
+        const validContent = removeReservedFields(content);
+        if (_.isEmpty(validContent)) {
+            throw new Error(`At least one ${collection} field must be specified for update`);
+        }
+        console.log('result', validContent, collection, query);
+
+        try {
+            var result = await db
+                .collection(collection)
+                .findOneAndUpdate(
+                    query,
+                    {$set: validContent},
+                    {returnOriginal: false}
+                );
+        } catch (err) {
+            console.error(err);
+            throw new Error(`Failed to update ${collection}`);
+        }
+
+        if (!(result && result.lastErrorObject.updatedExisting)) {
+            console.info(result);
+            throw new Error(`${collection} not found`);
+        }
+        console.info(`Successfully updated ${collection}: ${result.value._id}`);
+
+        return makeBo(result.value);
+    }
+
+    function removeReservedFields(document) {
+        let {_id, _type, ...validDocument} = document;
+
+        return validDocument;
+    }
+
+    /**
+     * Converts id to ObjectId or throws error
+     * @param {string} idString
+     */
+    function getObjectId(idString) {
+        try {
+            return mongodb.ObjectId(idString);
+        } catch (err) {
+            console.info(err.message);
+            throw new Error(`Invalid id provided: ${idString}. ${err.message}`);
+        }
+    }
+
 
     /**
      * Convert first level database specific document attributes

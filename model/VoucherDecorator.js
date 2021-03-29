@@ -2,7 +2,7 @@
 class VoucherDecorator {
     /**
      *
-     * @param {Order} order
+     * @param order
      */
     constructor(order) {
         this.order = order;

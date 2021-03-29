@@ -4,7 +4,8 @@ const router = express.Router();
 const Order = require('../model/Order');
 const VoucherDecorator = require('../model/VoucherDecorator');
 const SpecialDailyDiscountsDecorator = require('../model/SpecialDailyDiscountsDecorator');
-const foodDbService = require('../services/foodDbService.js');
+const OrderManager = require('../services/orderManager');
+const orderManager = new OrderManager();
 
 router.get('/', (req, res) =>
     res.send('Hello from router')
@@ -21,9 +22,18 @@ router.post('/', async (req, res) => {
    }
    const cost = order.getCost();
    console.log('Computed cost', cost);
-   const {id: orderId} = await foodDbService.insertOne('orders', {...order, cost});
+
+   const orderId = await orderManager.execute('placeOrder', {...order, cost});
 
    res.send({orderId});
+});
+
+router.patch('/:orderId', async (req, res) => {
+   const { orderId } = req.params;
+
+   await orderManager.execute('cancelOrder', orderId);
+
+   res.sendStatus(200);
 });
 
 // can be seen as a Director
