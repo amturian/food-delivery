@@ -5,11 +5,23 @@ const Order = require('../model/Order');
 const VoucherDecorator = require('../model/VoucherDecorator');
 const SpecialDailyDiscountsDecorator = require('../model/SpecialDailyDiscountsDecorator');
 const OrderManager = require('../services/orderManager');
+const iterator = require('../utils/iterator');
+
 const orderManager = new OrderManager();
 
-router.get('/', (req, res) =>
-    res.send('Hello from router')
-);
+router.get('/', async (req, res) => {
+   const orders = await orderManager.getOrders();
+   res.send(orders);
+
+   // supposing we would like GET ALL to return only orders that are not cancelled, using an iterator
+   // iterator is implemented with generator functions
+   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Iterators_and_Generators
+   const iteratorWithGenerator = iterator(orders, order => order.status !== 'CANCELLED');
+   console.log(iteratorWithGenerator.next());
+   console.log(iteratorWithGenerator.next());
+   console.log(iteratorWithGenerator.next());
+   console.log(iteratorWithGenerator.next());
+});
 
 router.post('/', async (req, res) => {
    let order = createOrder(req.body);

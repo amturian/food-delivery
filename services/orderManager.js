@@ -1,21 +1,21 @@
-const foodDbService = require('./foodDbService.js');
-const getObjectId = foodDbService.getObjectId;
+const ordersRepo = require('../repositories/orders');
 
 class OrderManager {
+    async getOrders() {
+        console.log('Retrieving all orders...');
+        return await ordersRepo.getAllOrders();
+    }
+
     async placeOrder(order) {
         console.log('Placing the following order...');
-        const {id: orderId} = await foodDbService.insertOne('orders', order);
+        const orderId = await ordersRepo.addOrder(order);
         console.log('OrderID', orderId);
         return orderId;
     }
 
     async cancelOrder(orderId) {
         console.log('Cancelling order with id', orderId);
-        await foodDbService.updateOne(
-            'orders',
-            { _id: getObjectId(orderId) },
-            {status: 'CANCELLED'}
-        );
+        await ordersRepo.updateOrder(orderId, { status: 'CANCELLED' });
     }
 
     execute(name, ...args) {

@@ -21,6 +21,8 @@ function mongodbService(params) {
         insertOne,
         updateOne,
         getObjectId,
+        aggregate,
+        find,
     };
 
     /**
@@ -69,6 +71,54 @@ function mongodbService(params) {
         }
 
         return (await clientPromise).db(name || dbName);
+    }
+
+    /**
+     * Wrapper for monogodb's aggregate()
+     * https://mongodb.github.io/node-mongodb-native/3.1/api/Collection.html#aggregate
+     * https://docs.mongodb.com/manual/reference/method/db.collection.aggregate
+     * @param {string} collection
+     * @param {object[]} pipeline - see mongodb docs https://mongodb.github.io/node-mongodb-native/3.1/api/Collection.html#aggregate
+     * @param {object} [options] - see mongodb docs https://mongodb.github.io/node-mongodb-native/3.1/api/Collection.html#aggregate
+     * @returns {Promise<object[]>} - list of documents produced by the pipeline
+     */
+    async function aggregate(collection, pipeline, options) {
+
+        const db = await getDb();
+
+        options = {...options, allowDiskUse: true};
+
+        const start = new Date();
+        const query = db.collection(collection).aggregate(pipeline, options);
+        const documents = await query.toArray().catch(err => {
+            if (err instanceof mongodb.MongoError && err.code === 11601) {
+                throw 'aborted';
+            }
+            throw err;
+        });
+        console.info('Aggregation took', new Date() - start, 'ms.');
+        return makeBo(documents, {defaultTo: []});
+    }
+
+    /**
+     * Wrapper for monogodb's find()
+     * https://mongodb.github.io/node-mongodb-native/3.1/api/Collection.html#find
+     * https://docs.mongodb.com/manual/reference/method/db.collection.find
+     * @param {string} collection
+     * @param {object} query
+     * @param {object} [options={}] - see mongodb docs https://mongodb.github.io/node-mongodb-native/3.1/api/Collection.html#find
+     * @param {object} [options.projection]
+     * @param {object} [options.sort]
+     * @param {number} [options.limit]
+     * @returns {Promise<object[]>} - list of documents matching the query
+     */
+    async function find(collection, query, options) {
+        const db = await getDb();
+        const documents = await db
+            .collection(collection)
+            .find(query, options)
+            .toArray();
+        return makeBo(documents, {defaultTo: []});
     }
 
     /**
